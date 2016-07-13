@@ -22,7 +22,14 @@ EZIsometric.World = EZIsoWorld = (function(){
         UTL.quickArray(this.cameras);
         UTL.quickArray(this.lights);
         if(ctx !== undefined){
-            this.addCamera(new EZIsometric.Camera(new geom3D.Vec3(0,0,0), new geom3D.Vec3(500,500,100),ctx));
+            this.addCamera(
+                new EZIsometric.Camera(
+                    new geom3D.Vec3(0,0,0), 
+                    new geom3D.Vec3(0,0,0)
+                        .fromAngleElevation(proj.viewAngle,proj.viewElevation,100),
+                    ctx
+                )
+            );
             this.ctx = ctx;
         }
         this.activePlane = PLANES.xy;
@@ -48,7 +55,11 @@ EZIsometric.World = EZIsoWorld = (function(){
         },
         frameStart : function(){
             var camera = this.activeCamera;
-            this.projection.update(camera.lookAt.x, camera.lookAt.y, camera.lookAt.z, camera.centerX, camera.centerY);
+            camera.update();
+
+            this.projection.update(-camera.lookAt.x, -camera.lookAt.y, camera.lookAt.z, camera.centerX, camera.centerY);
+            this.projection.rotate(camera.lookAtDirZ-this.projection.viewElevation,AXIS.y);
+            this.projection.rotate(-camera.lookAtDir-this.projection.viewAngle,AXIS.z);            
             this.objects.each(function(o){
                 o.proj.setPosition(o.position);
                  

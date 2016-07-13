@@ -98,9 +98,11 @@ EZIsometric.CONSTS = {
             if(p === undefined || p === null){
                 p = new EZIsometric.Projection();
             }
-            p.setAxis(EZIsometric.utils.deg2Rad(angX), 1, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180 - angY), 1, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(angX), 1, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180 - angY), 1, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;
             p.home();
             return p;
         },
@@ -114,9 +116,11 @@ EZIsometric.CONSTS = {
             if(p === undefined || p === null){
                 p = new EZIsometric.Projection();
             }
-            p.setAxis(EZIsometric.utils.deg2Rad(ang), length, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180 - ang), length, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(270), length, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(ang), length, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180 - ang), length, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(270), length, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;  
             p.home();
             return p;
         },
@@ -141,9 +145,11 @@ EZIsometric.CONSTS = {
                 sy = scale;
             }
             var p = new EZIsometric.Projection();
-            p.setAxis(EZIsometric.utils.deg2Rad(angX), sx, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180 - angY), sy, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(270), sz, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(angX), sx, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180 - angY), sy, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(270), sz, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;  
             p.home();
             return p;
         },
@@ -160,9 +166,11 @@ EZIsometric.CONSTS = {
             if(p === undefined || p === null){
                 p = new EZIsometric.Projection();
             }
-            p.setAxis(EZIsometric.utils.deg2Rad(angX), scaleX, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180-angY), scaleY, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(angZ), scaleZ, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(angX), scaleX, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180-angY), scaleY, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(angZ), scaleZ, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;  
             p.home();
             return p;
         },           
@@ -170,9 +178,11 @@ EZIsometric.CONSTS = {
             if(p === undefined || p === null){
                 p = new EZIsometric.Projection();
             }
-            p.setAxis(EZIsometric.utils.deg2Rad(0), 1, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180-45), 2/3, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(0), 1, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180-45), 2/3, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;  
             p.home();
             return p;               
         },
@@ -180,9 +190,11 @@ EZIsometric.CONSTS = {
             if(p === undefined || p === null){
                 p = new EZIsometric.Projection();
             }
-            p.setAxis(EZIsometric.utils.deg2Rad(0), 1, EZIsometric.CONSTS.axis.x);
-            p.setAxis(EZIsometric.utils.deg2Rad(180-45), 1/2, EZIsometric.CONSTS.axis.y);
-            p.setAxis(EZIsometric.utils.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(0), 1, EZIsometric.CONSTS.axis.x);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(180-45), 1/2, EZIsometric.CONSTS.axis.y);
+            p.setAxis(EZIsometric.utils.math.deg2Rad(270), 1, EZIsometric.CONSTS.axis.z);
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;              
             p.home();
             return p;               
         },     
@@ -194,6 +206,9 @@ EZIsometric.CONSTS = {
             p.zy = p.yx = -1;
             p.xy = p.yy = 1/fraction;
             p.zx = 0;
+            p.updateAxisAngles();     
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;            
             p.home();            
             return p;               
         },    
@@ -218,7 +233,10 @@ EZIsometric.CONSTS = {
             p.yx = -1;
             p.yy = 1/fraction;
             p.zx = 0;           
-            p.zy = -1;           
+            p.zy = -1;    
+            p.updateAxisAngles();  
+            p.viewAngle = Math.PI / 2;
+            p.viewElevation = p.xAng;            
             p.home();
             return p;               
         },        
@@ -260,6 +278,14 @@ EZIsometric.CONSTS = {
             var x,y,stepX,stepY,ssx,ssy;
             stepX = 64;//(ex-sx)/16;
             stepY = 64;//(ey-sy)/16;
+            if(Math.abs((ex-sx)/stepX) > 32){
+                sx = -stepX * 16;
+                ex = stepX *16;
+            }
+            if(Math.abs((ey-sy)/stepY) > 32){
+                sy = -stepY * 16;
+                ey = stepY *16;
+            }
             ssx = Math.floor(sx / stepX) * stepX;
             ssy = Math.floor(sy / stepY) * stepY;
 

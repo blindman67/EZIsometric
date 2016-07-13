@@ -28,6 +28,10 @@ EZIsometric.Projection = (function(){
         this.setAxis(Math.PI * (1 / factor), null, AXIS.x);
         this.setAxis(Math.PI * ((factor -1) / factor), null, AXIS.y);
         this.setAxis(Math.PI * 1.5, null, AXIS.z);
+        
+        // the angle to the camera for the projection standard view
+        p.viewAngle = (p.xAng + p.yAng)/2;
+        p.viewElevation = Math.PI / 2;
 
         // the transformed axis will hold the result of scalar and rotational transforms
 
@@ -52,15 +56,15 @@ EZIsometric.Projection = (function(){
         p.y = 0;
         p.z = 0;
 
-        // the projection origin
+        // the projection origin in pixels
         p.rx = 0;
         p.ry = 0;
         p.rz = 0;
         
-        // the projection offset. Where the center of the canvas is in pixels
+        // the projection canvas offset. Where the center of the canvas is in pixels
         p.cx = 0;
         p.cy = 0;
-        p.cz = 0;
+
         
         // face direction. Holds the computer cross product for up, front, and right. Used for backface cull
         p.fxy = 0;
@@ -126,7 +130,7 @@ EZIsometric.Projection = (function(){
             this.y = pos.y;
             this.z = pos.z;
         },
-        update : function(x,y,z,cx,cy,cy){
+        update : function(x,y,z,cx,cy){
             var p = this;
             var pn = p.parent;
             if(x === undefined){
@@ -253,6 +257,12 @@ EZIsometric.Projection = (function(){
                 y : x * this.invM2 + y * this.invM4 + this.invY
             };
         },    
+        updateAxisAngles : function(){
+            this.xAng = Math.atan2(this.xy,this.xx);
+            this.yAng = Math.atan2(this.yy,this.yx);
+            this.zAng = Math.atan2(this.zy,this.zx);
+            
+        },
         setAxis : function(angle,length,axis){
             if(axis === AXIS.x){
                 this.xAng = angle;
