@@ -1,3 +1,4 @@
+"use strict";
 
 
 var EZIsoObject;
@@ -8,6 +9,7 @@ EZIsometric.Object = EZIsoObject = (function(){
     const AXIS = CONSTS.axis;
     const LIGHTS = CONSTS.lights;
     var UTL = EZIsometric.utils;
+    const FACE_SORT = CONSTS.faceSort;
     function EZIsoObject(pos,projection){
         this.faces = [];
         this.proj = projection;
@@ -20,7 +22,7 @@ EZIsometric.Object = EZIsoObject = (function(){
     }
     EZIsoObject.prototype = {
         sortFaces : function (){
-            this.faces.sort(UTL.faceSort);
+            this.faces.sort(FACE_SORT);
         },
         render : function(ctx){
             if(ctx === null){
@@ -115,7 +117,7 @@ EZIsometric.Object = EZIsoObject = (function(){
             for(var i = 0; i < len; i ++){
                 var f = this.faces[i];
                 if(f.offAxis){
-                    f.setOffAxis(p);    
+                    f.setOffAxisProjection(p);    
                     if(f.cullBackface){
                         visible = f.facingOffAxis(p) > 0;    
                     }else{
@@ -123,10 +125,10 @@ EZIsometric.Object = EZIsoObject = (function(){
                     }
                     if(visible){
                         f.setWorldNormal(p);
-                        f.light = Math.min(1, Math.max(0,Math.abs( lx * f.wnx + ly * f.wny + lz * f.wnz))); 
-                        f.wx = f.x * p.wxx + f.y * p.wyx +  f.z  * p.wzx + x;
-                        f.wy = f.x * p.wxy + f.y * p.wyy +  f.z  * p.wzy + y;
-                        f.wz = f.x * p.wxz + f.y * p.wyz +  f.z  * p.wzz + z;
+                        f.light = 1 - Math.min(1, Math.max(0,Math.abs( lx * f.wnx + ly * f.wny + lz * f.wnz))); 
+                        f.wx = f.x * p.wxx + f.y * p.wyx +  f.z  * p.wzx + this.wx;
+                        f.wy = f.x * p.wxy + f.y * p.wyy +  f.z  * p.wzy + this.wy;
+                        f.wz = f.x * p.wxz + f.y * p.wyz +  f.z  * p.wzz + this.wz;
                         f.dist = (cp.x - f.wx)+(cp.y - f.wy)+(cp.z - f.wz);
                         f.rx = p.txx * f.x + f.offX * f.txx + p.tyx * f.y + f.offY * f.tyx + p.tzx * (f.z + f.offZ);// + x;
                         f.ry = p.txy * f.x + f.offX * f.txy + p.tyy * f.y + f.offY * f.tyy + p.tzy * (f.z + f.offZ);// + y;

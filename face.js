@@ -1,4 +1,5 @@
-//
+"use strict";
+
 var EZIsoFace;
 EZIsometric.Face = (function(){
     
@@ -63,20 +64,22 @@ EZIsometric.Face = (function(){
         setOffAxis : function(angle){
             if(!this.offAxis){
                 this.setTransform = CONSTS.transformOffAxisFunctions[this.side]; 
-                this.setOffAxis = CONSTS.offAxis[this.side];
+                this.setOffAxisProjection = CONSTS.offAxis[this.side];
                 this.facingOffAxis = CONSTS.facingOffAxis[this.side];
                 this.setWorldNormal = CONSTS.worldNormal[this.side];
                 this.offAxis = true;
             }
             this.oax = Math.cos(angle);
             this.oay = Math.sin(angle);
+           
             return this;
         },
         setTexture : function(image){
             this.image = image;
             return this;
         },
-        setRenderFunction : function(renderFunction){
+        setRenderFunction : function(renderFunction,data){
+            this.data = data;
             this.render = renderFunction;
             return this;
         },

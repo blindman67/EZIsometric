@@ -1,3 +1,4 @@
+"use strict";
 
 EZIsometric.Camera = (function(){
     var v1,x1,z1,y1; // working 3d vector

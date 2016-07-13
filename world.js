@@ -1,6 +1,6 @@
+"use strict";
 
-var EZIsoWorld; 
-EZIsometric.World = EZIsoWorld = (function(){
+EZIsometric.World  = (function(){
     var v1, v2, v3, v4; // working objects created as closure and persistent to reduce overall GC hits
     v1 = {x:0,y:0};
     v2 = {x:0,y:0};
@@ -26,7 +26,7 @@ EZIsometric.World = EZIsoWorld = (function(){
                 new EZIsometric.Camera(
                     new geom3D.Vec3(0,0,0), 
                     new geom3D.Vec3(0,0,0)
-                        .fromAngleElevation(proj.viewAngle,proj.viewElevation,100),
+                        .fromAngleElevation(proj.viewAngle,proj.viewElevation,2100),
                     ctx
                 )
             );
@@ -60,7 +60,7 @@ EZIsometric.World = EZIsoWorld = (function(){
             this.projection.update(-camera.lookAt.x, -camera.lookAt.y, camera.lookAt.z, camera.centerX, camera.centerY);
             this.projection.rotate(camera.lookAtDirZ-this.projection.viewElevation,AXIS.y);
             this.projection.rotate(-camera.lookAtDir-this.projection.viewAngle,AXIS.z);            
-            this.objects.each(function(o){
+            this.objects.eachEZI(function(o){
                 o.proj.setPosition(o.position);
                  
                 o.proj.home()
@@ -68,14 +68,14 @@ EZIsometric.World = EZIsoWorld = (function(){
         },
         update : function(){
             this.updateLights();
-            this.objects.each(function(o){
+            this.objects.eachEZI(function(o){
                 o.transform()
             });
             this.objects.sort(CONSTS.objectSort);        
         },
         render : function(context){
             var ctx = context !== undefined ? context : this.ctx;
-            this.objects.each(function(o){
+            this.objects.eachEZI(function(o){
                 o.sortFaces();
                 o.render(ctx);
             });
@@ -94,7 +94,7 @@ EZIsometric.World = EZIsoWorld = (function(){
         },
         updateLights : function(){
             var p = this.projection;
-            this.lights.each(function(l){
+            this.lights.eachEZI(function(l){
                 if(l.type === LIGHTS.directional){
                     l.tDir.x = l.dir.x;
                     l.tDir.y = l.dir.y;

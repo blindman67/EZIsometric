@@ -1,3 +1,4 @@
+"use strict";
 // The global nameSpace
 
 var EZIsometric = {};
@@ -70,7 +71,7 @@ EZIsometric.CONSTS = {
         function(p){},
         function(p){},        
     ],
-    worldNormal : [ // sets the fave normal in world space for off axis faces
+    worldNormal : [ // sets the face normal in world space for off axis faces
         function(p){
             this.wnx = p.wxx * this.oax + p.wyx * this.oay;// + p.wzx * wxz;
             this.wny = p.wxy * this.oax + p.wyy * this.oay;// + p.wzy * wxz;
@@ -254,7 +255,13 @@ EZIsometric.CONSTS = {
     renderers : {
         shape : function (ctx, proj, data){
             var i, len;
-            if(data === undefined || data.verts === undefined){
+            if(data === undefined){
+                if(this.data === undefined){
+                    return;
+                }
+                data = this.data;
+            }
+            if(data.verts === undefined){
                 return;
             }
             var verts = data.verts;

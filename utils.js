@@ -1,3 +1,4 @@
+"use strict";
 
 
 var EZIsoUtils;
@@ -62,12 +63,13 @@ EZIsometric.utils = (function(){
             };
             array.item = undefined;
             array.index = 0;
-            array.each = each.bind(array);
-            array.first = first.bind(array);
-            array.last = last.bind(array);
-            array.next = next.bind(array);
-            array.prev = prev.bind(array);
-            array.empty = empty.bind(array);
+
+            array.eachEZI = each.bind(array);
+            array.firstEZI = first.bind(array);
+            array.lastEZI = last.bind(array);
+            array.nextEZI = next.bind(array);
+            array.prevEZI = prev.bind(array);
+            array.emptyEZI = empty.bind(array);
             array.getById = getById.bind(array);
             return array;
         },
@@ -129,6 +131,63 @@ EZIsometric.utils = (function(){
             }
         },
         objects : {
+            cylinder : function (image,pos,size,height,sides,world){
+                var obj = world.createObject(new geom3D.Vec3(pos));
+                var step = Math.PI * 2 / sides;
+                var v1 = new geom3D.Vec3()
+                var v2 = new geom3D.Vec3()
+                var tx = 0;
+                var tw = 0;
+                var tl = 0;
+                var shape = [];
+                v1.setAs(
+                    Math.cos(0) * size,
+                    Math.sin(0) * size,
+                    0
+                );
+                shape.push([v1.x,v1.y]);
+                tw = (step / (Math.PI * 2)) * image.width ;               
+                for(var i = step; i < Math.PI * 2; i += step){
+                    v2.setAs(
+                        Math.cos(Math.PI * 2-i) * size,
+                        Math.sin(Math.PI * 2-i) * size,
+                        0
+                    );
+                    tx = ((i-step) / (Math.PI * 2)) * image.width
+                    shape.push([v2.x,v2.y]);
+                    utils.objects.faceExtrude(image,v1,v2,height,tx,0,tw,Math.min(height,image.height),obj);
+                    v1.setAs(v2);
+                    
+                }
+                v2.setAs(
+                    Math.cos(0) * size,
+                    Math.sin(0) * size,
+                    0
+                );         
+                utils.objects.faceExtrude(image,v1,v2,height,tx+tw,0,tw,Math.min(height,image.height),obj);                
+                var f = obj.addFace(new geom3D.Vec3(0,0,height),0,0,0,0,image.width,image.height,EZIsometric.CONSTS.sides.top);
+                f.setRenderFunction(EZIsometric.CONSTS.renderers.shape,{verts:shape,style:"#DDD"});
+                obj.proj.update();
+                return obj;
+                
+                
+            },
+            faceExtrude : function(image,vec,vec1,amount,tx,ty,tw,th,obj){
+                var center = vec.copy();//.add(vec1).multiply(1/2);
+                var length = vec.distanceFrom(vec1);
+                var ang = vec.directionTo(vec1);
+                center.z += amount;
+
+                var f = obj.addFace(center,length,amount,tx,ty,tw,th,EZIsometric.CONSTS.sides.front);
+                f.setOffAxis(ang);
+                f.setTexture(image);
+                f.offX = 0;
+                f.offY = 0;
+                obj.proj.update();
+                return f;
+                
+                
+            },
             box : function (image,pos,size,world){
                 var obj = world.createObject(new geom3D.Vec3(pos));
                 var px,py,pz;
@@ -238,6 +297,12 @@ var geom3D = (function(){
             }
             return this;
         },
+        multiply : function(value){
+            this.x *= value;
+            this.y *= value;
+            this.z *= value;
+            return this;
+        },
         reverse : function(){
             this.x = -this.x;
             this.y = -this.y;
@@ -254,8 +319,18 @@ var geom3D = (function(){
         getLength : function(){
             return Math.hypot(this.x,this.y,this.z);
         },
-        directionTo : function(vec){
-            return Math.atan2(vec.y - this.y, vec.x - this.x);
+        distanceFrom : function(vec,y,z){
+            if(y === undefined){
+                return Math.hypot(this.x - vec.x,this.y - vec.y,this.z - vec.z)
+            }
+            z = z !== undefined ? z : 0;
+            return Math.hypot(this.x - vec,this.y - y,this.z - z)
+        },
+        directionTo : function(vec,y){
+            if(y === undefined){
+                return Math.atan2(vec.y - this.y, vec.x - this.x);
+            }
+            return Math.atan2(y - this.y, vec - this.x);
         },
         elevationAngleTo : function(vec){
             u = Math.hypot(vec.x-this.x,vec.y-this.y);

@@ -1,4 +1,5 @@
- /*
+ "use strict";
+/*
  Projection is a isometric transformation object that holds both the projection matrix, world matrix, 
  and various common derived values.
  
