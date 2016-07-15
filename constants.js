@@ -253,6 +253,57 @@ EZIsometric.CONSTS = {
         
     },
     renderers : {
+        extent : function (ctx, proj, projO,extent){
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "red";
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, projO.rx + proj.tzx * extent.bottom, projO.ry + proj.tzy * extent.bottom);
+            ctx.moveTo(extent.left,extent.front);
+            ctx.lineTo(extent.left,extent.back);
+            ctx.lineTo(extent.right,extent.back);
+            ctx.lineTo(extent.right,extent.front);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, projO.rx + proj.tzx * extent.top, projO.ry + proj.tzy * extent.top);
+            ctx.beginPath();
+            ctx.moveTo(extent.left,extent.front);
+            ctx.lineTo(extent.left,extent.back);
+            ctx.lineTo(extent.right,extent.back);
+            ctx.lineTo(extent.right,extent.front);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.setTransform(proj.txx, proj.txy, proj.tzx, proj.tzy, projO.rx + proj.tyx * extent.front, projO.ry + proj.tyy * extent.front);
+            ctx.beginPath();
+            ctx.moveTo(extent.left,extent.top);
+            ctx.lineTo(extent.left,extent.bottom);
+            ctx.lineTo(extent.right,extent.bottom);
+            ctx.lineTo(extent.right,extent.top);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.setTransform(proj.txx, proj.txy, proj.tzx, proj.tzy, projO.rx + proj.tyx * extent.back, projO.ry + proj.tyy * extent.back);
+            ctx.beginPath();
+            ctx.moveTo(extent.left,extent.top);
+            ctx.lineTo(extent.left,extent.bottom);
+            ctx.lineTo(extent.right,extent.bottom);
+            ctx.lineTo(extent.right,extent.top);
+            ctx.closePath();
+            ctx.stroke();
+
+
+            /*ctx.moveTo(extent.left,extent.front);            
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, proj.rx + proj.cx + proj.tzx * extent.bottom, proj.ry + proj.cy  + proj.tzy * extent.bottom);
+            ctx.lineTo(extent.left,extent.front);   
+            ctx.moveTo(extent.left,extent.back);
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, proj.rx + proj.cx + proj.tzx * extent.top, proj.ry + proj.cy  + proj.tzy * extent.top);
+            ctx.lineTo(extent.left,extent.back);
+            ctx.moveTo(extent.right,extent.back);
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, proj.rx + proj.cx + proj.tzx * extent.bottom, proj.ry + proj.cy  + proj.tzy * extent.bottom);
+            ctx.lineTo(extent.right,extent.back);
+            ctx.moveTo(extent.right,extent.front);
+            ctx.setTransform(proj.txx, proj.txy, proj.tyx, proj.tyy, proj.rx + proj.cx + proj.tzx * extent.top, proj.ry + proj.cy  + proj.tzy * extent.top);
+            ctx.lineTo(extent.right,extent.front); 
+            ctx.stroke();*/
+        },
         shape : function (ctx, proj, data){
             var i, len;
             if(data === undefined){
@@ -274,12 +325,15 @@ EZIsometric.CONSTS = {
                 ctx.rotate(data.angle);
             }
             ctx.beginPath();
+            
             ctx.moveTo(verts[i][0],verts[i++][1]);
             while(i < len){
                 ctx.lineTo(verts[i][0],verts[i++][1]);
             }
             ctx.closePath();
             ctx.fill();
+
+            
         },
         grid : function(ctx,sx,sy,ex,ey,labelX,labelY){
             var x,y,stepX,stepY,ssx,ssy;

@@ -1,0 +1,96 @@
+PixelArt Document.
+
+
+To use pixelArt include the file pixelArt.js in your page. If you are using it with other EZIsometric module place it after the other modules
+
+The interface will appear as EZIsometric.pixelArt
+
+PixelArt uses the abstract bitmap to define a bitmapped image, and pixels to define pixel data
+
+bitmaps, pixels and images are interchangeable so functions can be passed any of these object if the arguments specifies bitmaps, pixels, or image. The argument name reflects the optimal format
+
+Style refers to colour (for the moment) and can be the CSS formatted #RGB or #RRGGBB strings, or an array of 4 bytes  [R,G,B,A] all in the range of 0-255, or a pattern (use EZIsometric.color.linePattern) and represents a linear list of colours used to draw lines, edges and more.
+
+EZIsometric.pixelArt rendering function 
+
+drawLine(bitmap, x, y, xx, yy, style1, [style2, [skipStart]])
+    draws a non anti aliased line from x,y to xx,yy
+    style1 the colour (or pattern);
+    optional style2 if included the colour will be blended across the line distance
+    optional skipStart if true will not render the first pixel. Defaults to false. Use when connecting lines
+drawRect(bitmap, x, y, w, h, style, [scalePattern])
+    Draw a line around a rectangle (similar to ctx.strokeRect)
+drawFillRect(bitmap, x, y, w, h, style)
+   Fills a rectangle
+floodFill(bitmap, x, y, style, tolerance, [diagonal, [edgeMask]])
+    Fills area with a colour
+    bitmap is the image to fill
+    x,y the location to start the fill
+    style the colour of the fill
+    tolerance The fill tolerance. The higher the value the more pixels are filled (range 0-255)
+    diagonal if true then will fill along diagonal pixels. Alowing fill to fill pixel lines, where pixel corners only touch. Defaults to false;
+    edgeMask Optional. the bits from 0 to 3 if set indicate which side be coloured. When set only pixels at the edge of the fill will be filled. Defaults to 0 (no edgeFill)
+        Note if using edge fill supplying a single colour will fill all the selected edges that colour, if you provide a pattern then you can set the colours of up to 16 edge conditions
+       
+        Shows which bits  represent which sides
+          bit 1
+         ______
+         |    |
+   bit 0 |    | bit 2
+         |____|
+          bit 3
+         
+         To fill only top edges edgeMask = 0b0010  (bit 0 is the right most bit in the binary number)
+         To Fill the right and bottom edges edgeMask = 0b1100
+         to Fill all edges edgeMask = 0b1111
+         Pattern colours are in order and represent edges as follows
+         EZIsometric.color.linePattern([no edges,left,top,right,bottom,top-Left, top-right corner,bottom-right, bottom-left, left-top-right, top-right-bottom, right-bottom-left, left-right, top-bottom, and left-top-right-bottom]);
+         So a pixel that is touching only the left edge is left
+         A pixel the is touching the left and top edges is left-top
+         
+         
+         
+bitmapToISOFace(bitmap,face)
+    Transforms the bitmap to align to the selected face
+    bitmap is the bitmap to transform
+    face is the face to transform to can be any of
+        EZIsometric.pixelArt.faces or EZIsometric.CONSTS.sides
+        Faces are one of front,back,left,right,top or bottom
+pixelsToBitmap(pixels) // requires pixels (not bitmap or image)
+    Creates a bitmap from pixels. The bitmaps size will fit the pixel data size
+    pixels the pixels used to create the bitmap
+    returns a new bitmap
+putPixels(pixels,bitmap,[x,[y]]) // requires pixels and bitmap 
+   Puts pixels onto a bitmap at optional x,y coord
+    pixels the pixel data to put into the image
+    bitmap the bitmap to receive the pixels
+    x the position of top left. Defaults to 0
+    y the position of top left. Defaults to 0
+    returns the bitmap
+        Note that if there is no room to fit the pixels extra pixels will be trimed
+        
+getPixels(bitmap,[x,[y,[width,[height]]]])
+    Gets pixels from a bitmap. x,y,width and height are optional and default to include the whole image    
+    bitmap can be Image ,pixels, or bitmap
+    x top left x position of area Defaults to 0
+    y top left x position of area Defaults to 0
+    width  Do I have to type what they widths means??? You guess Defaults to bitmap width
+    height Defaults to bitmap height
+    returns pixels
+copyBitmap(bitmap)
+    Creates a copy of the bitmap
+    bitmap can be Image,pixels, or bitmap
+    returns a new bitmap
+imageToBitmap(image)
+    Converts a HTMLImageElement into a bitmap
+    image is a HTMLImageElement
+    returns a copy as bitmap
+createBitmap([width,[height]])
+    Creates a new bitmap
+    width is the width. Defaults to 256
+    height is the height. Defaults to 256
+    returns a bitmap
+color.linePattern(styles)
+    Creates a style pattern
+    styles is an array of styles
+    returns a new pattern

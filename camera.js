@@ -58,14 +58,22 @@ EZIsometric.Camera = (function(){
             return this;
         },        
         setContext : function(ctx){
+            if(ctx === undefined){
+                if(this.ctx === undefined){
+                    return;
+                }
+                ctx = this.ctx;
+            }
             this.width = ctx.canvas.width;
             this.height = ctx.canvas.height;
             this.centerX = this.width / 2;
             this.centerY = this.height /2;
+            this.ctx = ctx;
         },
         update : function(){
             this.lookAtDir = this.position.directionTo(this.lookAt);
             this.lookAtDirZ = this.position.elevationAngleTo(this.lookAt);
+            this.setContext();
             
         }
     }

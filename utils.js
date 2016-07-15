@@ -167,7 +167,7 @@ EZIsometric.utils = (function(){
                 utils.objects.faceExtrude(image,v1,v2,height,tx+tw,0,tw,Math.min(height,image.height),obj);                
                 var f = obj.addFace(new geom3D.Vec3(0,0,height),0,0,0,0,image.width,image.height,EZIsometric.CONSTS.sides.top);
                 f.setRenderFunction(EZIsometric.CONSTS.renderers.shape,{verts:shape,style:"#DDD"});
-                obj.proj.update();
+                obj.update();
                 return obj;
                 
                 
@@ -183,7 +183,7 @@ EZIsometric.utils = (function(){
                 f.setTexture(image);
                 f.offX = 0;
                 f.offY = 0;
-                obj.proj.update();
+                obj.update();
                 return f;
                 
                 
@@ -214,7 +214,7 @@ EZIsometric.utils = (function(){
                 f.setTexture(image);
                 f = obj.addFace(new geom3D.Vec3(px,py-yh,pz+zt),x,z,0,0,tx,ty,EZIsometric.CONSTS.sides.right);
                 f.setTexture(image);
-                obj.proj.update();
+                obj.update();
                 return obj;
             }
         },
@@ -346,6 +346,47 @@ var geom3D = (function(){
             
         
     }
+    function Extent(){
+        this.irrate();
+        
+    }
+    Extent.prototype = {
+        top : -Infinity,
+        bottom: Infinity,
+        left : -Infinity,
+        right: Infinity,
+        front : -Infinity,
+        back: Infinity,
+        irrate : function(){
+            this.top = -Infinity;
+            this.bottom = Infinity;
+            this.left = -Infinity;
+            this.right = Infinity;
+            this.front = -Infinity;
+            this.back =  Infinity;
+            return this;
+        },
+        envelop : function(vec,y,z){
+            if(y === undefined){
+                this.top    = Math.max(this.top,    vec.z);
+                this.bottom = Math.min(this.bottom, vec.z);
+                this.left   = Math.max(this.left,   vec.y);
+                this.right  = Math.min(this.right,  vec.y);
+                this.front  = Math.max(this.font,   vec.x);
+                this.back   = Math.min(this.back,   vec.x);            
+                return this;
+            }
+            if(z !== undefined){
+                this.top     = Math.max(this.top,   z);
+                this.bottom  = Math.min(this.bottom,  z);
+            }
+            this.left   = Math.max(this.left,   y);
+            this.right  = Math.min(this.right,  y);
+            this.front  = Math.max(this.font,   vec);
+            this.back   = Math.min(this.back,   vec);            
+            return this;       
+        }
+    }
     function Matrix3D(m3D){
         if(m3D ===undefined || m3d === null){
             this.xx = 1;
@@ -468,6 +509,7 @@ var geom3D = (function(){
     return {
         Vec3 : Vec3,
         Matrix : Matrix3D,
+        Extent : Extent,
     };
 })();
 

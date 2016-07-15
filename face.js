@@ -71,7 +71,6 @@ EZIsometric.Face = (function(){
             }
             this.oax = Math.cos(angle);
             this.oay = Math.sin(angle);
-           
             return this;
         },
         setTexture : function(image){
@@ -83,6 +82,33 @@ EZIsometric.Face = (function(){
             this.render = renderFunction;
             return this;
         },
+        extent : function(extent){
+            if(this.side === SIDES.top || this.side === SIDES.bottom){
+                extent.top    = Math.max(extent.top,    this.z);
+                extent.bottom = Math.min(extent.bottom, this.z);
+                extent.left   = Math.max(extent.left,   this.y, this.y + this.offY, this.y - this.offY);
+                extent.right  = Math.min(extent.right,  this.y, this.y + this.offY, this.y - this.offY);
+                extent.front  = Math.max(extent.front,  this.x, this.x + this.offX, this.x - this.offX);
+                extent.back   = Math.min(extent.back,   this.x, this.x + this.offX, this.x - this.offX);
+            }else
+            if(this.side === SIDES.front || this.side === SIDES.back){
+                extent.top    = Math.max(extent.top,    this.z, this.z - this.sy);
+                extent.bottom = Math.min(extent.bottom, this.z, this.z - this.sy);
+                extent.left   = Math.max(extent.left,   this.y, this.y + this.offY, this.y - this.offY);
+                extent.right  = Math.min(extent.right,  this.y, this.y + this.offY, this.y - this.offY);
+                extent.front  = Math.max(extent.front,  this.x);
+                extent.back   = Math.min(extent.back,   this.x);
+            }else
+            if(this.side === SIDES.left || this.side === SIDES.right){
+                extent.top    = Math.max(extent.top,    this.z, this.z - this.sy);
+                extent.bottom = Math.min(extent.bottom, this.z, this.z - this.sy);
+                extent.left   = Math.max(extent.left,   this.y);
+                extent.right  = Math.min(extent.right,  this.y);
+                extent.front  = Math.max(extent.front,  this.x, this.x + this.offX, this.x - this.offX);
+                extent.back   = Math.min(extent.back,   this.x, this.x + this.offX, this.x - this.offX);
+            }
+            return extent;
+        }
     }
 return EZIsoFace;
 })();

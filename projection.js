@@ -216,6 +216,13 @@ EZIsometric.Projection = (function(){
                 ctx.setTransform(this.tyx, this.tyy, -this.tzx, -this.tzy, this.rx + px, this.ry + py);
             }            
         },
+        getTopProjection : function(){
+            var p = this;
+            while(p.parent !== null){
+                p = p.parent;
+            }
+            return p;
+        },
         invertProjection : function(plane){
             if(plane === PLANES.xy){
                 var cross =  this.txx * this.tyy - this.txy * this.tyx;

@@ -12,13 +12,10 @@ EZIsometric.Object = EZIsoObject = (function(){
     const FACE_SORT = CONSTS.faceSort;
     function EZIsoObject(pos,projection){
         this.faces = [];
+        UTL.quickArray(this.faces);
         this.proj = projection;
         this.position = pos;
-        this.bounds = {
-            w : 0,
-            h : 0,
-            d : 0,
-        };
+        this.extent = new geom3D.Extent();
     }
     EZIsoObject.prototype = {
         sortFaces : function (){
@@ -42,7 +39,7 @@ EZIsometric.Object = EZIsoObject = (function(){
                 if(!f.cull){
                     f.setTransform(ctx,p);
                     if(f.image === null){
-                        f.render(ctx);
+                        f.render(ctx,p);
                     }else{
                         if(f.image.iso){
                             if(f.light < 1){
@@ -62,7 +59,7 @@ EZIsometric.Object = EZIsoObject = (function(){
                         lena = (a = f.attachedFaces).length;
                         for(j = 0; j < lena; j ++){
                             if(a[j].image === null){
-                                a[j].render(ctx);
+                                a[j].render(ctx,p);
                             }else{
                                 f = a[j];
                                 if(f.image.iso){
@@ -162,6 +159,22 @@ EZIsometric.Object = EZIsoObject = (function(){
         // width,height the face size in face coord space
         // side On of the constants SIDES.
         // noCull flag true to prevent backface culling from removing this face.
+        update : function(){
+            this.proj.update();
+            var e = this.extent.irrate();
+            this.faces.eachEZI(function(f){
+                f.extent(e);
+            });
+        },
+        renderExtent : function(ctx){
+            if(this.world !== undefined){
+                this.world.projection.setCTXTransformXY(ctx);
+                CONSTS.renderers.extent(ctx, this.world.projection, this.proj, this.extent);
+            }else{
+                this.proj.setCTXTransformXY(ctx);
+                CONSTS.renderers.extent(ctx, this.proj, this.proj, this.extent);
+            }
+        },
         addFace : function(pos,width,height,tx,ty,tw,th,side){
             var f = new EZIsometric.Face(side,pos,width,height,tx,ty,tw,th);
             f.id = UTL.getUID();

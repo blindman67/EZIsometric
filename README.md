@@ -5,6 +5,9 @@ EZIsometric is a Axonometric projection 3D rendering interface that uses the HTM
 
 Currently in Alpha experimental stage, there will be much re-factoring as I hone in on the API that is practical and EZey to use.
 
+The object EZIsometric.pixelArt is stand alone. It has no dependencies to any of the other EZIsomteric object. WARNING pixelArt is written for in ECMAScript6 an at time of writing only Chrome will handle it.
+Pixel Art module is not for real-time rendering. It is to aid in the creation images for isometric (and just 2D images). It will provide things like lines/circles/shapes without anti aliasing, colour line patterns, dithering, limit colour sets, smart fills, pixel inner and outer borders, bevels, Isometric image folding, extrusion... and more 
+
 **Progress**
 July 13 2016
 Added progress.
@@ -16,7 +19,15 @@ Add "use strict"; to all code.
 Re-factored quickArray function names to not clash with existing array methods (eg jQuery each) and my groover each
 Added EZIsometric.utils.objects.cylinder and EZIsometric.utils.objects.faceExtrude as test functions
 Improved EZIsometric.Face.setRenderFunction to include data reference that is passed to the render function
-
+Added geom3D.extent that is used to get a 3D bounds
+Added EZIsometric.CONSTS.renderers.extent that renders a bounding box (Slow due to use of moveTo,lineTo calls)
+Added EZIsometric.Projection.getTopProjection which returns the top of the projection chain.
+Added EZIsometric.Face.extent which adds the extent of a face to an extent object (incomplete)
+Added EZIsometric.Object.update rebuilds any required data after modifying the object
+Did profile test. Could not find any GC major hits during run (good news) most code as expected, but still need to test in standalone environment
+July 15 2016
+Added module pixelArt.js as EZIsometric.pixelArt that will provide functionality required by pixel art
+Completed first test of pixelArt.js.
 **Basics**
 To use add the js file to the document which is the most current release version (Would like to say stable but as an Alpha there is much work still to be done)
 
