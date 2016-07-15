@@ -269,8 +269,6 @@ EZIsometric.pixelArt = (function(){
             if(ctx === undefined){
                 ctx = pA.imageToBitmap(bitmap).ctx;
             }                
-            log(width);
-            log(height);
             return ctx.getImageData(x,y,width,height);            
         },
         putPixels : (pixels = throwMA("putPixels","Requires first argument to be pixel data."),
