@@ -32,7 +32,7 @@ EZIsometric.pixelArt = (function(){
     const consoleWarn = (funcName, message) => {
         if(!warnings.has(message)){
             warnings.add(message);
-            console.warning("EZIcometric.pixelArt." + funcName + " " + message);
+            console.warn("EZIcometric.pixelArt." + funcName + " " + message);
         }
     }
             
@@ -45,7 +45,7 @@ EZIsometric.pixelArt = (function(){
     }
     const copyBitmap = (bitmap) => {
         var copyBM = createBitmap(bitmap.width,bitmap.height);
-        copyBm.ctx.drawImage(bitmap, 0, 0);
+        copyBM.ctx.drawImage(bitmap, 0, 0);
         return copyBM;
     }
     const missingBitmap = (functName) => {
@@ -261,7 +261,7 @@ EZIsometric.pixelArt = (function(){
         },
         copyBitmap : (bitmap = throwMB("copyBitmap")) => {
             var copyBM = pA.createBitmap(bitmap.width,bitmap.height);
-            copyBm.ctx.drawImage(bitmap, 0, 0);
+            copyBM.ctx.drawImage(bitmap, 0, 0);
             return copyBM;
         },
         getPixels : (bitmap = throwMB("getPixels"), x = 0, y = 0, width = bitmap.width, height = bitmap.height) => {
@@ -275,7 +275,7 @@ EZIsometric.pixelArt = (function(){
                      bitmap = throwMB("copyBitmap"), x = 0, y = 0) => {
              bitmap = pA.imageToBitmap(bitmap);
              if(x + pixels.width > bitmap.width || y + pixels.height > bitmap.height){
-                 console.warning("putPixels","pixels data is being clipped to fit.");
+                 consoleWarn("putPixels","pixels data is being clipped to fit.");
              }
              
              bitmap.ctx.putImageData(pixels,x,y);
@@ -288,17 +288,18 @@ EZIsometric.pixelArt = (function(){
         bitmapToISOFace: (bitmap = throwMB("bitmapToISOFace"), 
                     face = () => {consoleWarn("bitmapToISOFace","Missing face argument defaults to top"); return pA.faces.top;} ) => {
             var slide = 0; // slides pixels rows left to right as y goes down it represents the slope in terms of y
+            var x,y;
             var up = 0; // slides pixel columns up for every up pixels across
             var w = bitmap.width;
-            var n = bitmap.height;
+            var h = bitmap.height;
             var nw,nh; // new width and height when known.
-            if(face === pA.top || face === pA.bottom){
+            if(face === pA.faces.top || face === pA.faces.bottom){
                 slide = 1;
                 up = 2;
-            }else if(face === pA.front || face === pA.back){
+            }else if(face === pA.faces.front || face === pA.faces.back){
                 slide = 0;
                 up = 2;
-            }else if(face === pA.back || face === pA.right){
+            }else if(face === pA.faces.left || face === pA.faces.right){
                 slide = 0;
                 up = -2;
             }else{
@@ -314,7 +315,7 @@ EZIsometric.pixelArt = (function(){
                 dataN32 = new Uint32Array(nw * nh);
                 for(y = 0; y < h; y += 1){
                     ind = y * w;
-                    dataN32.set(data32.subArray(ind, ind + w),Math.floor(y * side) + y * nw);
+                    dataN32.set(data32.subarray(ind, ind + w),Math.floor(y * slide) + y * nw);
                 }
                 data32 = dataN32;
                 w = nw;
@@ -322,12 +323,13 @@ EZIsometric.pixelArt = (function(){
             }
             if(up !== 0){
                 off = up < 0 ? w - 1: 0;
+                up = Math.abs(up);
                 nw = w;
                 nh = h + Math.ceil(w / up);
                 dataN32 = new Uint32Array(nw * nh);
                 for(x = 0; x < w; x += 1){
                     ind = x;
-                    ind1 = x + math.floor(Math.abs(off - x) / up) * w;
+                    ind1 = x + ((nh-Math.floor(Math.abs(off - x) / up))-h) * w;
                     y = h;
                     while(y > 0){
                         dataN32[ind1] = data32[ind];
@@ -337,11 +339,15 @@ EZIsometric.pixelArt = (function(){
                     }
                 }
             }
-            return pA.pixelsToBitmap({
+            var pd = bitmap.ctx.createImageData(nw,nh);
+            pd.data.set(new Uint8ClampedArray(dataN32.buffer));
+            pA.putPixels(pd,bitmap)
+            return pA.pixelsToBitmap(pd);
+            /*
                 width : nw,
                 height : nh,
-                data : new UInt8ClampedArray(dataN32.buffer),
-            });
+                data : new Uint8ClampedArray(dataN32.buffer),
+            });*/
         },
         drawFillRect : (bitmap = throwMB("drawRect"),
                     x = throwMA("drawRect","missing arguments."),
