@@ -12,7 +12,21 @@ bitmaps, pixels and images are interchangeable so functions can be passed any of
 Style refers to colour (for the moment) and can be the CSS formatted #RGB or #RRGGBB strings, or an array of 4 bytes  [R,G,B,A] all in the range of 0-255, or a pattern (use EZIsometric.color.linePattern) and represents a linear list of colours used to draw lines, edges and more.
 
 EZIsometric.pixelArt rendering function 
-
+darken(bitmap,[amount])
+    Reduces the value of all pixels. 
+    bitmap can be image, pixels, or bitmap
+    amount is optional and defaults to 0.5. Amount is the amount of darking applied 0 is no darkening and 1 will return a black image
+    If the amount is 0 then the function exits early returning the original bitmap, image, or pixels without modification
+    If the amount > 0 the function returns the original bitmap in the original format except for images, they are returned as a new bitmap
+lighten(bitmap,[amount])
+    Increases the value of all pixels.  See darken for more information
+   
+trim(bitmap)
+    trims the bitmap of transparent edges
+    The returned bitmap may or may not be a copy
+    If the bitmap has no visible pixels then the original bitmap is returned as the result would be an empty bitmap (thought I am still working out what to do in these cases)
+    If the bitmap has nothing to trim the original bitmap is returned
+    If trimmed a copy is made and returned in the same format, unless the bitmap is an image in which case it is converted to a bitmap
 drawLine(bitmap, x, y, xx, yy, style1, [style2, [skipStart]])
     draws a non anti aliased line from x,y to xx,yy
     style1 the colour (or pattern);
@@ -56,6 +70,7 @@ bitmapToISOFace(bitmap,face)
     face is the face to transform to can be any of
         EZIsometric.pixelArt.faces or EZIsometric.CONSTS.sides
         Faces are one of front,back,left,right,top or bottom
+    Returns a new bitmap
 pixelsToBitmap(pixels) // requires pixels (not bitmap or image)
     Creates a bitmap from pixels. The bitmaps size will fit the pixel data size
     pixels the pixels used to create the bitmap

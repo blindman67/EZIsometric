@@ -27,35 +27,133 @@ EZIsometric.pixelArt = (function(){
             isLittleEndian = false;
         }
     })();
+    if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
+        if(isLittleEndian){
+            logSys("Pixel art detected Little Endian",false,true);            
+        }else{
+            logSys("Pixel art detected Big Endian",false,true);            
+        }
+            
+    }      
+    const getCallStackTrace = () => { // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm as long as you remove all calls to this function as well
+        if(typeof logSysTrace === "function"){
+            var e = new Error('dummy');
+            var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+                .replace(/^\s+at\s+/gm, '')
+                .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+                .split('\n');
+            logSysTrace(stack);        
+        }
+    }
         
     var warnings = new Set();
     const consoleWarn = (funcName, message) => {
+        if(typeof logSysWarn === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
+            logSysWarn("EZIcometric.pixelArt." + funcName + " " + message);  
+            getCallStackTrace();            
+        }
         if(!warnings.has(message)){
             warnings.add(message);
             console.warn("EZIcometric.pixelArt." + funcName + " " + message);
+
         }
     }
-            
-    const createBitmap = (w = 256,h = 256) => {
-        var bitmap = document.createElement("canvas");
-        bitmap.width = Math.floor(w);
-        bitmap.height = Math.floor(h);
-        bitmap.ctx = bitmap.getContext("2d");
-        return bitmap;
-    }
-    const copyBitmap = (bitmap) => {
-        var copyBM = createBitmap(bitmap.width,bitmap.height);
-        copyBM.ctx.drawImage(bitmap, 0, 0);
-        return copyBM;
-    }
-    const missingBitmap = (functName) => {
+    const throwMB = (functName) => { // MB for missing bitmap
+        if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
+            logSys("EZIsometric.pixelArt."+funcName+" requires a bitmap.",true);  
+            getCallStackTrace();
+        }        
         throw new ReferanceError("EZIsometric.pixelArt."+funcName+" requires a bitmap.");
     }
-    const throwMB = missingBitmap;
-    const throwMissingArgument = (functName,message) => {
+    const throwMA = (functName,message) => { // MA for missing argument
+        if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
+            logSys("EZIsometric.pixelArt."+funcName+" "+message,true);            
+            getCallStackTrace();
+        }   
         throw new ReferanceError("EZIsometric.pixelArt."+funcName+" "+message);
     }
-    const throwMA = throwMissingArgument;    
+    const throwGeneralError = (functName,message) => {
+        if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
+            logSys("EZIsometric.pixelArt."+funcName+" "+message,true);            
+            getCallStackTrace();
+        }   
+        throw new Error("EZIsometric.pixelArt."+funcName+" "+message);
+    }
+
+    var workingCanvas = document.createElement("canvas");
+    workingCanvas.width = 2;
+    workingCanvas.height = 2;
+    var workingCtx = workingCanvas.getContext("2d");
+    const workOnImage = (image) => {
+        workingCanvas.width = image.width;
+        workingCanvas.height = image.height;
+        clean2DContext(workingCtx);
+        workingCtx.clearRect(0,0,image.width,image.height);
+        workingCtx.drawImage(image,0,0);
+    };
+    const workOnPixels = (pixels) => {
+        workingCanvas.width = pixels.width;
+        workingCanvas.height = pixels.height;
+        clean2DContext(workingCtx);        
+        workingCtx.putImageData(pixels,0,0);
+    };
+    
+    const getTempPixels = (image) => {
+        workOnImage(image);
+        var pixels = workingCtx.getImageData(0,0,image.width,image.height);
+        pixels.isPixels = true;
+        cleanWorkingCanvas();
+    }
+    const getTempBitmap = (bitmap) => {
+        var canvas = document.createElement("canvas");
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        canvas.ctx = canvas.getContext("2d");
+        canvas.ctx.drawImage(bitmap,0,0);
+        return canvas;
+    };
+    const cleanWorkingCanvas = () => {
+        workingCanvas.width = 2;
+        workingCanvas.height = 2;
+        clean2DContext(workingCtx);
+        workingCtx.clearRect(0,0,2,2);
+    };        
+    const clean2DContext = (ctx) => {
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+        
+    }    
+    const compFilter = (bitmap,amount,filter) => {
+        var tb,tbC; // tb for temp bitmap
+        amount = Math.min(1, Math.max(0, amount));
+        if(!bitmap.isBitmap && !bitmap.isPixels){
+            bitmap = pA.imageToBitmap(bitmap);
+        }
+        if(bitmap.isBitmap){
+            tb = bitmap;
+            clean2DContext(tb.ctx);
+        }
+        if(bitmap.isPixels){
+            workOnPixels(bitmap);
+            tb = workingCanvas;
+        }
+        tbC = getTempBitmap(tb); //get a copy            
+        var c = Math.floor((1-amount) * 255);
+        tb.ctx.fillStyle = "rgb("+c+","+c+","+c+")";
+        tb.ctx.globalCompositeOperation = filter; 
+        tb.ctx.fillRect(0,0,tb.width,tb.height);
+        tb.ctx.globalCompositeOperation = "destination-atop"; 
+        tb.ctx.drawImage(tbC,0,0);                      
+        tb.ctx.globalCompositeOperation = "source-over";
+
+        if(bitmap.isPixels){
+            bitmap.data.set(tb.ctx.getImageData(0,0,bitmap.width,bitmap.height).data);
+        } 
+        return bitmap;
+    }
+
+    
     const pixelArt = {
         faces : (() => {
             if(EZIsometric.CONSTS !== undefined && EZIsometric.CONSTS.sides !== undefined){
@@ -249,6 +347,7 @@ EZIsometric.pixelArt = (function(){
             bitmap.width = Math.floor(w);
             bitmap.height = Math.floor(h);
             bitmap.ctx = bitmap.getContext("2d");
+            bitmap.isBitmap = true;
             return bitmap;
         },
         imageToBitmap : (image = throwMA("imageToBitmap","Requires first argument image.")) => {
@@ -264,27 +363,202 @@ EZIsometric.pixelArt = (function(){
             copyBM.ctx.drawImage(bitmap, 0, 0);
             return copyBM;
         },
+        createPixels : (width = 256, height = 256) => {
+            var pixels = workingCtx.createImageData(width,height);
+            pixels.isPixels = true;
+            return pixels;
+        },
         getPixels : (bitmap = throwMB("getPixels"), x = 0, y = 0, width = bitmap.width, height = bitmap.height) => {
-            var ctx = bitmap.ctx;
-            if(ctx === undefined){
-                ctx = pA.imageToBitmap(bitmap).ctx;
-            }                
-            return ctx.getImageData(x,y,width,height);            
+            var ctx,pixels,i,data32,dataN32,ind1,ind;
+            if(x >= bitmap.width || y >=bitmap.height){ 
+                consoleWarn("getPixels","pixels data is outside the bitmap returning new blank pixel data.");
+                pixels = workingCtx.createImageData(width,height);
+                pixels.isPixels = true;
+                return pixels
+            }            
+            if(width + x > bitmap.width){
+                width = bitmap.width - x;
+            }
+            if(height + y > bitmap.height){
+                height = bitmap.height - y;
+            }
+            if(bitmap.isBitmap){
+                pixels = bitmap.ctx.getImageData(x,y,width,height);
+                pixels.isPixels = true;
+                return pixels;
+            }
+            if(bitmap.isPixels){
+                pixels = workingCtx.createImageData(width,height);
+                data32 = new Uint32Array(bitmap.data.buffer);
+                dataN32 = new Uint32Array(pixels.data.buffer);
+                for(i = y; i < y+height; i ++){
+                    ind = x + i * bitmap.width;
+                    ind1 = (i-y)*width;
+                    dataN32.set(data32.subarray(ind, ind + width),ind1);
+                }
+                pixels.isPixels = true;
+                return pixels;
+                    
+            }
+            workOnImage(bitmap);
+            pixels = workingCtx.getImageData(x, y, width,height);
+            pixels.isPixels = true;
+            return pixels;
         },
         putPixels : (pixels = throwMA("putPixels","Requires first argument to be pixel data."),
                      bitmap = throwMB("copyBitmap"), x = 0, y = 0) => {
-             bitmap = pA.imageToBitmap(bitmap);
-             if(x + pixels.width > bitmap.width || y + pixels.height > bitmap.height){
-                 consoleWarn("putPixels","pixels data is being clipped to fit.");
-             }
-             
-             bitmap.ctx.putImageData(pixels,x,y);
-             return bitmap;
+            var width,height,ind,ind1;  
+            width = pixels.width;
+            height = pixels.height;
+            if(x >= bitmap.width || y >=bitmap.height){ 
+                consoleWarn("putPixels","pixels data is outside the destination image returning unchanged bitmap.");
+            }
+            if(x < 0 || y < 0){
+                consoleWarn("putPixels","pixels data is being clipped to fit.");
+                //consoleWarn("putPixels","source W : "+pixels.width+" H: "+pixels.height+" Dest W : "+bitmap.width+" H: "+bitmap.height+" @ X : "+x+" Y : "+y);
+                if(x < 0){
+                    width = width + x;
+                    x = 0;
+                }
+                if(y < 0){
+                    height = height + y;
+                    y = 0;
+                }
+            }
+            if(x + width > bitmap.width || y + height > bitmap.height){
+
+                consoleWarn("putPixels","pixels data is being clipped to fit.");
+                //consoleWarn("putPixels","source W : "+pixels.width+" H: "+pixels.height+" Dest W : "+bitmap.width+" H: "+bitmap.height+" @ X : "+x+" Y : "+y);
+               if(x + width > bitmap.width){
+                    width = bitmap.width - x;
+                }
+                if(y + height > bitmap.height){
+                    height = bitmap.height - y;
+                }
+            }
+            if(!pixels.isPixels && !pixels.isPixels){
+                pixels = pA.getPixels(pixels,x,y,width,height);
+            }
+            if(!bitmap.isBitmap && !bitmap.isPixels){
+                 consoleWarn("putPixels","Destination is an Image, converting to bitmap the original image reference remains unchanged use the returned bitmap to keep the changes. ");
+                 bitmap = pA.imageToBitmap(bitmap);
+            }            
+            if(pixels.isPixels){
+                if(bitmap.isBitmap){
+                     bitmap.ctx.putImageData(pixels,x,y);
+                     return bitmap;
+                }
+                if(bitmap.isPixels){
+                    data32 = new Uint32Array(pixels.data.buffer);
+                    dataD32 = new Uint32Array(bitmap.data.buffer);
+                    for(i = y; i < y+height; i ++){
+                        ind = x + i * bitmap.width;
+                        ind1 = (i-y) * pixels.width;
+                        dataD32.set(data32.subarray(ind1,ind1 + pixels.width),ind);
+                    }
+                    return bitmap;
+                }
+                throwGeneralError("putPixels","Unknown image format");
+            }
+            if(pixels.isBitmap){
+                if(bitmap.isBitmap){
+                    clean2DContext(bitmap.ctx);
+                    bitmap.ctx.clearRect(x,y,width,height);
+                    bitmap.ctx.drawImage(pixels,0,0,width,height,x,y,width,height);
+                    return bitmap;
+                }
+                if(bitmap.isPixels){
+                    pixels = pixels.getImageData(x,y,width,height);
+                    data32 = new Uint32Array(pixels.data.buffer);
+                    dataD32 = new Uint32Array(bitmap.data.buffer);
+                    for(i = y; i < y+height; i ++){
+                        ind = x + i * bitmap.width;
+                        ind1 = (i-y) * pixels.width;
+                        dataD32.set(data32.subarray(ind1,ind1 + pixels.width),ind);
+                    }      
+                    return bitmap;
+                    
+                }
+                throwGeneralError("putPixels","Unknown image format");
+            }
+            throwGeneralError("putPixels","Unknown image format");
+
         }, 
         pixelsToBitmap : (pixels = throwMA("pixelsToBitmap","Requires first argument to be pixel data.")) => {
-            var bitmap = pA.createBitmap(pixels.width,pixels.height);
-            return pA.putPixels(pixels, bitmap);
-        },        
+            if(pixels.isPixels){
+                var bitmap = pA.createBitmap(pixels.width,pixels.height);
+                return pA.putPixels(pixels, bitmap);
+            }
+            throwGeneralError("pixelsToBitmap","Argument pixels is not pixel data. If creating from imageData add the property isPixels=true");
+        }, 
+        darken : (bitmap = throwMB("lighten"), amount = 0.5) => {
+
+            amount = Math.min(1, Math.max(0, amount));
+            if(amount === 0){
+                return bitmap;
+            }
+            return compFilter(bitmap,amount,"multiply");
+        },
+        lighten : (bitmap = throwMB("lighten"), amount = 0.5) => {
+
+            amount = Math.min(1, Math.max(0, amount));
+            if(amount === 0){
+                return bitmap;
+            }
+            return compFilter(bitmap,amount,"lighter");
+        },
+        trim : (bitmap = throwMB("trim")) => {
+            var top,left,right,bot,x,y,pixel,pixels,w,h;
+            right = 0;
+            left = bitmap.width;
+
+            if(!bitmap.isBitmap && ! bitmap.isPixels){
+                pixels = getTempPixels(bitmap);
+            }
+            if(bitmap.isBitmap){
+                pixels = pA.getPixels(bitmap);                
+            }
+            if(bitmap.isPixels){
+                pixels = bitmap;
+            }
+            var data = new Uint32Array(pixels.data.buffer);
+            for(y = 0; y < bitmap.height; y++){
+                for(x = 0; x < bitmap.width; x++){
+                    var pixel = data[y * bitmap.width + x];
+                    if(pixel !== 0){
+                        if(top === undefined){
+                            top = y;
+                        }
+                        bot = y;
+                        left = Math.min(left,x);
+                        right = Math.max(right,x);
+                    }
+                }
+            }
+            if(top === undefined){
+                consoleWarn("trim","Bitmap has no visible pixels, trimming will result in a bitmap with no size. Returning original bitmap");
+                return bitmap;
+            }
+            if(left === 0 && top === 0 && bot === bitmap.height -1 && right === bitmap.width -1){
+                // bitmap has nothing to trim
+                log("no")
+                return bitmap;
+            }
+            w = right-left+1;
+            h = bot-top+1;
+            pixels = pA.getPixels(pixels,left,top,w,h);
+            if(bitmap.isBitmap){
+                bitmap.width = w;
+                bitmap.height = h;
+                bitmap.ctx.putImageData(pixels,0,0);
+            }else if(bitmap.isPixels){
+                bitmap = pixels;
+            }else{
+                bitmap = pA.pixelsToBitmap();
+            }
+            return bitmap;
+            
+        },
         bitmapToISOFace: (bitmap = throwMB("bitmapToISOFace"), 
                     face = () => {consoleWarn("bitmapToISOFace","Missing face argument defaults to top"); return pA.faces.top;} ) => {
             var slide = 0; // slides pixels rows left to right as y goes down it represents the slope in terms of y
@@ -321,6 +595,7 @@ EZIsometric.pixelArt = (function(){
                 w = nw;
                 h = nh;
             }
+            
             if(up !== 0){
                 off = up < 0 ? w - 1: 0;
                 up = Math.abs(up);
@@ -339,9 +614,9 @@ EZIsometric.pixelArt = (function(){
                     }
                 }
             }
-            var pd = bitmap.ctx.createImageData(nw,nh);
+            var pd = pA.createPixels(nw,nh);
             pd.data.set(new Uint8ClampedArray(dataN32.buffer));
-            pA.putPixels(pd,bitmap)
+            pd = pA.trim(pd);
             return pA.pixelsToBitmap(pd);
             /*
                 width : nw,
@@ -374,8 +649,8 @@ EZIsometric.pixelArt = (function(){
                     bitmap.ctx.fillStyle = colour.color2Style(style);
                 }                
             }            
-            var xx = Math.floor(x + w);
-            var yy = Math.floor(y + h);
+            var xx = Math.floor(x + w)-1;
+            var yy = Math.floor(y + h)-1;
             x = Math.floor(x);
             y = Math.floor(y);
             w = xx-x;
@@ -410,8 +685,8 @@ EZIsometric.pixelArt = (function(){
                     bitmap.ctx.fillStyle = colour.color2Style(style);
                 }                
             }
-            var xx = Math.floor(x + w);
-            var yy = Math.floor(y + h);
+            var xx = Math.floor(x + w)-1;
+            var yy = Math.floor(y + h)-1;
             x = Math.floor(x);
             y = Math.floor(y);
             if(!pixelData){
@@ -596,7 +871,7 @@ EZIsometric.pixelArt = (function(){
             return;
         },
         
-        floodFill : (bitmap  = throwMB("floodFill"),
+        floodFill : (pixels  = throwMB("floodFill"),
                     x = throwMA("floodFill","missing arguments."), 
                     y = throwMA("floodFill","missing arguments."), 
                     style,
@@ -604,11 +879,11 @@ EZIsometric.pixelArt = (function(){
                     diagonal = false,
                     edgeMask = 0) => {
             var isBitmap = false;           
-            var pixels;
-            if (bitmap.data && bitmap.width && bitmap.height) { // assume its pixel data                          
+            var bitmap;
+            if (pixels.data && bitmap.width && bitmap.height) { // check its pixel data                          
                 pixels = bitmap;
             }else{
-                bitmap = pA.imageToBitmap(bitmap);
+                bitmap = pA.imageToBitmap(pixels);
                 isBitmap = true;
                 pixels = pA.getPixels(bitmap);
             }

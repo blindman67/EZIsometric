@@ -28,6 +28,14 @@ Did profile test. Could not find any GC major hits during run (good news) most c
 July 15 2016
 Added module pixelArt.js as EZIsometric.pixelArt that will provide functionality required by pixel art
 Completed first test of pixelArt.js.
+July 16 2016
+More work on pixelArt module. 
+    Fixed a few minor bugs. 
+    Improved error system.
+    Did work to make pixelArt actually do as the documentation states 
+Added functions Trim, Lighten, Darken
+EZIsometric.pixelArt.bitmapToISOFace function now returns clipped amount
+EZIsometric.pixelArt.drawRect and EZIsometric.pixelArt.drawFillRect now round down to rather than up the find the right and bottom edges
 **Basics**
 To use add the js file to the document which is the most current release version (Would like to say stable but as an Alpha there is much work still to be done)
 
