@@ -36,6 +36,10 @@ More work on pixelArt module.
 Added functions Trim, Lighten, Darken
 EZIsometric.pixelArt.bitmapToISOFace function now returns clipped amount
 EZIsometric.pixelArt.drawRect and EZIsometric.pixelArt.drawFillRect now round down to rather than up the find the right and bottom edges
+Made Pattern a Function constructor and added it methods to the prototype
+Added Pattern.position and Pattern.appendColor
+
+
 **Basics**
 To use add the js file to the document which is the most current release version (Would like to say stable but as an Alpha there is much work still to be done)
 

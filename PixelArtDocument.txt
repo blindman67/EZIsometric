@@ -12,6 +12,7 @@ bitmaps, pixels and images are interchangeable so functions can be passed any of
 Style refers to colour (for the moment) and can be the CSS formatted #RGB or #RRGGBB strings, or an array of 4 bytes  [R,G,B,A] all in the range of 0-255, or a pattern (use EZIsometric.color.linePattern) and represents a linear list of colours used to draw lines, edges and more.
 
 EZIsometric.pixelArt rendering function 
+
 darken(bitmap,[amount])
     Reduces the value of all pixels. 
     bitmap can be image, pixels, or bitmap
@@ -109,3 +110,47 @@ color.linePattern(styles)
     Creates a style pattern
     styles is an array of styles
     returns a new pattern
+    
+Pattern Object can be created via EZIsometric.pixelArt.color.linePattern
+Pattern should only be modified via the color interface. It contains a 1D array of colour values (optimised for both pixel and 2D context rendering)
+To create a pattern call EZIsometric.pixelArt.color.linePattern with an array of colour values
+
+var pat1 = EZIsometric.pixelArt.color.linePattern(["#FFF","#000"]); // create a black and white pattern
+var pat2 = EZIsometric.pixelArt.color.linePattern(["#F00","#0F0","#00F"]); // create a Red Green Blue pattern
+var pat3 = EZIsometric.pixelArt.color.linePattern(["#000",[0,0,0,0],[0,0,0,0]]); // create a black then two transparent pixel pattern
+
+To render using the pattern simply pass the pattern as the style argument
+bitmap = EZIsometric.pixelArt.drawLine(bitmap,x,y,xx,yy,pat1);
+
+The pattern remembers the last position that was rendered. Thus if a line is drawn and it ends on the 3rd pixel of 10 in the pattern then the next time the pattern is used it will start at the 4th. Because line drawLine draw the first and last pixel off the line joining two lines with a pattern can result in skipping a pattern colour due to the first pixel of the second line being drawn over the last pixel of the first line. To prevent this pass false as the skipFirst (optional) argument for line.
+
+To return the pattern to the start position call the home function. The home function returns the pattern so that calls can be chained, or home can be called when passing a pattern as an argument.
+
+pat1.home(); // resets the pattern
+bitmap = EZIsometric.pixelArt.drawLine(bitmap,x,y,xx,yy,pat1); 
+
+or 
+
+bitmap = EZIsometric.pixelArt.drawLine(bitmap,x,y,xx,yy,pat1.home()); 
+
+
+The pattern can be scaled and reversed
+pat1.scale = 2; // half the scale
+pat1.scale = 0.5; // doubles the scale
+pat1.scale = -1; // reverse the pattern direction
+pat1.scale = 0; // Patter does not move so current pattern location is drawn indefinitely
+
+The scale can be set to fit a given length by calling
+
+pattern =  EZIsometric.pixelArt.color.linePattern(["#000",[0,0,0,0],[0,0,0,0]]); 
+pattern.setScaleToLength(21); // the pattern repeats every 21 pixels
+pattern = EZIsometric.pixelArt.color.linePattern(["#F00","#0F0","#00F"]); // create a Red Green Blue pattern
+pattern.setScaleToLength(-100); // the pattern repeats every 100 pixels and is reversed
+
+pattern.home().setScaleToLength(20); // set pattern position home and length 20 pixels
+
+
+To set the current position of the pattern call position(). Position returns the pattern. Negative values set the index from the pattern length pattern(-1) set the pattern current position to the last colour. The value passed to position is floored before setting the current index. Thus 0.5 becomes 0 and -0.5 becomes 0. Keep in mind that negative numbers floor upward.
+
+pattern.position(index)
+

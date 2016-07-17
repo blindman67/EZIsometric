@@ -152,7 +152,73 @@ EZIsometric.pixelArt = (function(){
         } 
         return bitmap;
     }
-
+    var Pattern = function(){
+        this.isPattern = true;
+        this.RGBA = [];
+        this.style = [];
+        this.index = 0;
+        this.scale = 1;
+    };
+    Pattern.prototype = {
+        setScaleToLength : function(length = 1){
+            if(length === 0){
+                this.scale = 1;
+            }
+            this.scale = this.RGBA.length / length;
+            return this;
+        },
+        position : function(index = 0){
+            index = Math.floor(index);
+            if(index < 0){
+                index = (this.RGBA.length - (-index %this.RGBA.length)) % this.RGBA.length;
+            }else{
+                this.index = index % this.RGBA.length;
+            }
+            return this;                        
+        },
+        indexed : function(index,RGBA){
+            index %= this.RGBA.length;
+            return RGBA ? this.RGBA[index] : this.style[index];
+        },
+        home : function(){
+            this.index = 0;
+            return this;
+        },
+        next : function(RGBA){
+            if(this.RGBA.length === 0){
+                return RGBA ? 0 : "rgba(0,0,0,0)";
+            }
+            var rv = Math.floor(this.index);
+            this.index += this.scale;
+            this.index = (this.index + this.RGBA.length) % this.RGBA.length;
+            return RGBA ? this.RGBA[rv] : this.style[rv];
+        },
+        appendColor : function(style){
+            var rgba,ss,i,len;
+            rgba = this.RGBA;
+            ss = this.style;
+            if(style.isPattern){
+                len = style.RGBA.length;  // because the passed pattern could be this pattern to stop the infinite loop must set the aaray length outside the loop
+                for(i = 0; i < len; i ++){
+                    this.rgba.push(style.RGBA[i]);
+                    this.style.push(style.style[i]);
+                }
+            }else if( Array.isArray(style)){
+                rgba = this.RGBA;
+                ss = this.style;
+                style.forEach(c => {
+                    rgba.push(pA.colour.color2RGBANumber(c));
+                    ss.style.push(pA.colour.color2Style(c));
+                });               
+            }else{
+                this.RGBA.push(pA.colour.color2RGBANumber(style));
+                this.style.push(pA.colour.color2Style(style));
+            }
+            return this;
+        }
+                
+    }
+        
     
     const pixelArt = {
         faces : (() => {
@@ -301,37 +367,7 @@ EZIsometric.pixelArt = (function(){
                 return col;
             },
             createLinePattern : (cols) => {
-                var pattern = {
-                    isPattern : true,
-                    RGBA : [],
-                    style : [],
-                    index : 0,
-                    scale : 1,
-                    setScaleToLength : function(length = 1){
-                        if(length === 0){
-                            this.scale = 1;
-                        }
-                        this.scale = this.RGBA.length / length;
-                        return this;
-                    },
-                    indexed : function(index,RGBA){
-                        index %= this.RGBA.length;
-                        return RGBA ? this.RGBA[index] : this.style[index];
-                    },
-                    home : function(){
-                        this.index = 0;
-                        return this;
-                    },
-                    next : function(RGBA){
-                        if(this.RGBA.length === 0){
-                            return RGBA ? 0 : "rgba(0,0,0,0)";
-                        }
-                        var rv = Math.floor(this.index);
-                        this.index += this.scale;
-                        this.index = (this.index + this.RGBA.length) % this.RGBA.length;
-                        return RGBA ? this.RGBA[rv] : this.style[rv];
-                    },
-                };
+                var pattern = new Pattern();
                 if(Array.isArray(cols)){
                     cols.forEach(c => {
                         pattern.RGBA.push(colour.color2RGBANumber(c));
