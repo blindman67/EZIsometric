@@ -154,3 +154,5 @@ To set the current position of the pattern call position(). Position returns the
 
 pattern.position(index)
 
+To add colours to the pattern call Pattern.appendColor(style) where style can be a single colour, an array of colours, or another pattern. Returns the pattern.
+

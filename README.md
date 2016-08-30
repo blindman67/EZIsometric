@@ -1,5 +1,8 @@
 **EZIsometric (Alpha 0.1)**
 
+**This project is DEAD in favour of an webGL solution.**
+------
+
 EZIsometric is a Axonometric projection 3D rendering interface that uses the HTML5 canvas element to render real-time 3D content via the CanvasRenderingContext2D API
 
 
@@ -38,6 +41,9 @@ EZIsometric.pixelArt.bitmapToISOFace function now returns clipped amount
 EZIsometric.pixelArt.drawRect and EZIsometric.pixelArt.drawFillRect now round down to rather than up the find the right and bottom edges
 Made Pattern a Function constructor and added it methods to the prototype
 Added Pattern.position and Pattern.appendColor
+
+July 20 2016
+Fixed bug in error helpers that resulted in a new unrelated error being throw
 
 
 **Basics**

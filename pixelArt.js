@@ -58,21 +58,21 @@ EZIsometric.pixelArt = (function(){
 
         }
     }
-    const throwMB = (functName) => { // MB for missing bitmap
+    const throwMB = (funcName) => { // MB for missing bitmap
         if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
             logSys("EZIsometric.pixelArt."+funcName+" requires a bitmap.",true);  
             getCallStackTrace();
         }        
-        throw new ReferanceError("EZIsometric.pixelArt."+funcName+" requires a bitmap.");
+        throw new ReferenceError("EZIsometric.pixelArt."+funcName+" requires a bitmap.");
     }
-    const throwMA = (functName,message) => { // MA for missing argument
+    const throwMA = (funcName,message) => { // MA for missing argument
         if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
             logSys("EZIsometric.pixelArt."+funcName+" "+message,true);            
             getCallStackTrace();
         }   
-        throw new ReferanceError("EZIsometric.pixelArt."+funcName+" "+message);
+        throw new ReferenceError("EZIsometric.pixelArt."+funcName+" "+message);
     }
-    const throwGeneralError = (functName,message) => {
+    const throwGeneralError = (funcName,message) => {
         if(typeof logSys === "function"){ // this is to stay compatible for my (Author Blindman67) development system and can be removed without harm
             logSys("EZIsometric.pixelArt."+funcName+" "+message,true);            
             getCallStackTrace();
@@ -234,6 +234,7 @@ EZIsometric.pixelArt = (function(){
                 bottom : 5,
             };
         })(),    
+
         color : { // bloody US spelling does my head in
             RGBA2Style : (col) => {
                 if(Array.isArray(col)){
@@ -577,7 +578,6 @@ EZIsometric.pixelArt = (function(){
             }
             if(left === 0 && top === 0 && bot === bitmap.height -1 && right === bitmap.width -1){
                 // bitmap has nothing to trim
-                log("no")
                 return bitmap;
             }
             w = right-left+1;
@@ -669,7 +669,7 @@ EZIsometric.pixelArt = (function(){
             style = style === undefined ? "#000" : style;     
             var pixelData = false;   
             var pattern1 = false;             
-            if (bitmap.data && bitmap.width && bitmap.height) { // assume its pixel data                        
+            if (bitmap.isPixels) { // assume its pixel data                        
                 data32 = new Uint32Array(bitmap.data.buffer);    
                 pixelData = true;
                 if(style.isPattern){
@@ -695,6 +695,8 @@ EZIsometric.pixelArt = (function(){
             if(!pixelData){
                 bitmap.ctx.fillRect(x,y,w,h);
             }
+            return bitmap;
+            
         },
         drawRect : (bitmap = throwMB("drawRect"),
                     x = throwMA("drawRect","missing arguments."),
@@ -705,7 +707,7 @@ EZIsometric.pixelArt = (function(){
             style = style === undefined ? "#000" : style;     
             var pixelData = false;   
             var pattern1 = false;             
-            if (bitmap.data && bitmap.width && bitmap.height) { // assume its pixel data                        
+            if (bitmap.isPixels) { // assume its pixel data                        
                 data32 = new Uint32Array(bitmap.data.buffer);    
                 pixelData = true;
                 if(style.isPattern){
@@ -754,9 +756,67 @@ EZIsometric.pixelArt = (function(){
                 }                    
             }else{
             }
+            return bitmap;
          
             
         },
+        fillPath :(bitmap = throwMB("drawPath"),
+                    pathPoints = throwMA("drawPath","missing arguments."),
+                    style,style2,closePath = true) => {
+             var i,len,p1,p2;
+             if(Array.isArray(pathPoints)){
+                 len = pathPoints.length;
+                 p1 = pathPoints[0];
+                 for(i = 1; i < len; i++){
+                     p2 = pathPoints[i];
+                     if(closePath && i === 1){
+                        bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2);
+                     }else{
+                        bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2,true);
+                     }
+                     p1 = p2;
+                 }
+                 if(closePath){
+                     p2 = pathPoints[0];
+                     bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2,true);
+                 }
+                 return bitmap;
+             }
+             throwGeneralError("drawPath","Argument pathPoints is not an array");
+                        
+                        
+                        
+                        
+        },
+        drawPath : (bitmap = throwMB("drawPath"),
+                    pathPoints = throwMA("drawPath","missing arguments."),
+                    style,style2,closePath = true) => {
+             var i,len,p1,p2;
+             if(Array.isArray(pathPoints)){
+                 len = pathPoints.length;
+                 p1 = pathPoints[0];
+                 for(i = 1; i < len; i++){
+                     p2 = pathPoints[i];
+                     if(closePath && i === 1){
+                        bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2);
+                     }else{
+                        bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2,true);
+                     }
+                     p1 = p2;
+                 }
+                 if(closePath){
+                     p2 = pathPoints[0];
+                     bitmap = pA.drawLine(bitmap,p1[0],p1[1],p2[0],p2[1],style,style2,true);
+                 }
+                 return bitmap;
+             }
+             throwGeneralError("drawPath","Argument pathPoints is not an array");
+                        
+                        
+                        
+                        
+        },
+                    
         drawLine : (bitmap = throwMB("drawLine"),
                     x = throwMA("drawLine","missing arguments."),
                     y = throwMA("drawLine","missing arguments."),
@@ -774,7 +834,7 @@ EZIsometric.pixelArt = (function(){
             var gradient = false;
             var pixelData = false;
             var canClip = false; // the becomes true when pixels are rendered and means that when the clip boundary is reached line rendering can stop
-            if (bitmap.data && bitmap.width && bitmap.height) { // assume its pixel data
+            if (bitmap.isPixels) { // assume its pixel data
                 data32 = new Uint32Array(bitmap.data.buffer);
                 pixelData = true;
                 if(style.isPattern){
@@ -904,7 +964,7 @@ EZIsometric.pixelArt = (function(){
                     }
                 }
             }
-            return;
+            return bitmap;
         },
         
         floodFill : (pixels  = throwMB("floodFill"),
